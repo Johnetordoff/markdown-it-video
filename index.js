@@ -69,7 +69,7 @@ function mfrEmbed(md, options) {
     return true;
   }
 
-  return videoReturn;
+  return mfrReturn;
 }
 
 function mfrUrl(service, mfrID, options) {
