@@ -112,6 +112,6 @@ module.exports = function videoPlugin(md, options) {
   } else {
     theOptions = defaults;
   }
-  theMd.renderer.rules.iframe = tokenizeIframe(theMd, theOptions);
-  theMd.inline.ruler.before('emphasis', 'iframe', mfrEmbed(theMd, theOptions));
+  theMd.renderer.rules.video = tokenizeIframe(theMd, theOptions);
+  theMd.inline.ruler.before('emphasis', 'video', mfrEmbed(theMd, theOptions));
 };
