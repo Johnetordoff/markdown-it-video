@@ -1,38 +1,16 @@
-// Process @[youtube](youtubeVideoID)
-// Process @[vimeo](vimeoVideoID)
-// Process @[vine](vineVideoID)
-// Process @[prezi](preziID)
+// Process @[mfr](guid)
 
-const ytRegex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-function youtubeParser(url) {
-  const match = url.match(ytRegex);
-  return match && match[7].length === 11 ? match[7] : url;
-}
-
-/* eslint-disable max-len */
-const vimeoRegex = /https?:\/\/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/;
-/* eslint-enable max-len */
-function vimeoParser(url) {
-  const match = url.match(vimeoRegex);
-  return match && typeof match[3] === 'string' ? match[3] : url;
-}
-
-const vineRegex = /^http(?:s?):\/\/(?:www\.)?vine\.co\/v\/([a-zA-Z0-9]{1,13}).*/;
-function vineParser(url) {
-  const match = url.match(vineRegex);
-  return match && match[1].length === 11 ? match[1] : url;
-}
-
-const preziRegex = /^https:\/\/prezi.com\/(.[^/]+)/;
-function preziParser(url) {
-  const match = url.match(preziRegex);
+const mfrRegex = /^http(?:s?):\/\/(?:www\.)?mfr\.osf\.io\/render\?url=http(?:s?):\/\/osf\.io\/([a-zA-Z0-9]{1,5})\/\?action=download/;
+function mfrParser(url) {
+  const match = url.match(mfrRegex);
   return match ? match[1] : url;
 }
 
+
 const EMBED_REGEX = /@\[([a-zA-Z].+)]\([\s]*(.*?)[\s]*[)]/im;
 
-function videoEmbed(md, options) {
-  function videoReturn(state, silent) {
+function mfrEmbed(md, options) {
+  function mfrReturn(state, silent) {
     var serviceEnd;
     var serviceStart;
     var token;
@@ -52,24 +30,18 @@ function videoEmbed(md, options) {
     }
 
     const service = match[1];
-    videoID = match[2];
+    mfrID = match[2];
     const serviceLower = service.toLowerCase();
 
-    if (serviceLower === 'youtube') {
-      videoID = youtubeParser(videoID);
-    } else if (serviceLower === 'vimeo') {
-      videoID = vimeoParser(videoID);
-    } else if (serviceLower === 'vine') {
-      videoID = vineParser(videoID);
-    } else if (serviceLower === 'prezi') {
-      videoID = preziParser(videoID);
+    if (serviceLower === 'mfr') {
+      mfrID = mfrParser(videoID);
     } else if (!options[serviceLower]) {
       return false;
     }
 
     // If the videoID field is empty, regex currently make it the close parenthesis.
-    if (videoID === ')') {
-      videoID = '';
+    if (mfrID === ')') {
+      mfrID = '';
     }
 
     serviceStart = oldPos + 2;
@@ -86,8 +58,8 @@ function videoEmbed(md, options) {
       const newState = new theState.md.inline.State(service, theState.md, theState.env, []);
       newState.md.inline.tokenize(newState);
 
-      token = theState.push('video', '');
-      token.videoID = videoID;
+      token = theState.push('iframe', '');
+      token.mfrID = mfrID;
       token.service = service;
       token.level = theState.level;
     }
@@ -100,33 +72,24 @@ function videoEmbed(md, options) {
   return videoReturn;
 }
 
-function videoUrl(service, videoID, options) {
+function mfrUrl(service, mfrID, options) {
   switch (service) {
-    case 'youtube':
-      return 'https://www.youtube.com/embed/' + videoID;
-    case 'vimeo':
-      return 'https://player.vimeo.com/video/' + videoID;
-    case 'vine':
-      return 'https://vine.co/v/' + videoID + '/embed/' + options.vine.embed;
-    case 'prezi':
-      return 'https://prezi.com/embed/' + videoID +
-        '/?bgcolor=ffffff&amp;lock_to_path=0&amp;autoplay=0&amp;autohide_ctrls=0&amp;' +
-        'landing_data=bHVZZmNaNDBIWnNjdEVENDRhZDFNZGNIUE43MHdLNWpsdFJLb2ZHanI5N1lQVHkxSHFxazZ0UUNCRHloSXZROHh3PT0&amp;' +
-        'landing_sign=1kD6c0N6aYpMUS0wxnQjxzSqZlEB8qNFdxtdjYhwSuI';
+    case 'mfr':
+      return "https://mfr.osf.io/render?url=https://osf.io/" + mfrID + "/?action=download"
     default:
       return service;
   }
 }
 
-function tokenizeVideo(md, options) {
+function tokenizeIframe(md, options) {
   function tokenizeReturn(tokens, idx) {
-    const videoID = md.utils.escapeHtml(tokens[idx].videoID);
+    const mfrID = md.utils.escapeHtml(tokens[idx].mfrID);
     const service = md.utils.escapeHtml(tokens[idx].service).toLowerCase();
-    return videoID === '' ? '' :
+    return mfrID === '' ? '' :
       '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item ' +
       service + '-player" type="text/html" width="' + (options[service].width) +
       '" height="' + (options[service].height) +
-      '" src="' + options.url(service, videoID, options) +
+      '" src="' + options.url(service, mfrID, options) +
       '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>';
   }
 
@@ -134,11 +97,7 @@ function tokenizeVideo(md, options) {
 }
 
 const defaults = {
-  url: videoUrl,
-  youtube: { width: 640, height: 390 },
-  vimeo: { width: 500, height: 281 },
-  vine: { width: 600, height: 600, embed: 'simple' },
-  prezi: { width: 550, height: 400 },
+  mfr: { width: 550, height: 400 }
 };
 
 module.exports = function videoPlugin(md, options) {
@@ -153,6 +112,6 @@ module.exports = function videoPlugin(md, options) {
   } else {
     theOptions = defaults;
   }
-  theMd.renderer.rules.video = tokenizeVideo(theMd, theOptions);
-  theMd.inline.ruler.before('emphasis', 'video', videoEmbed(theMd, theOptions));
+  theMd.renderer.rules.iframe = tokenizeIframe(theMd, theOptions);
+  theMd.inline.ruler.before('emphasis', 'iframe', mfrEmbed(theMd, theOptions));
 };

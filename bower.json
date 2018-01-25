@@ -1,10 +1,11 @@
 {
-  "name": "markdown-it-video",
+  "name": "markdown-it-mfr",
   "version": "0.4.0",
   "authors": [
-    "Brian J. Geiger <bgeiger@pobox.com>"
+    "Brian J. Geiger <bgeiger@pobox.com>",
+    "John E. Tordoff <john@cos.io>"
   ],
-  "description": "Markdown-it plugin to embed a hosted video",
+  "description": "Markdown-it plugin to embed a mfr iframe",
   "main": "index.js",
   "kewords": [
     "markdown-it",
