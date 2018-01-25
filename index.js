@@ -97,6 +97,7 @@ function tokenizeIframe(md, options) {
 }
 
 const defaults = {
+  url: mfrUrl,
   mfr: { width: 550, height: 400 }
 };
 
