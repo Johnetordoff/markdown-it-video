@@ -1,21 +1,21 @@
 {
-  "name": "markdown-it-video",
-  "version": "0.6.0",
-  "description": "Markdown-it plugin to embed a hosted videos",
+  "name": "markdown-it-mfr",
+  "version": "0.0.1",
+  "description": "Markdown-it plugin to embed files with the OSF's MFR",
   "main": "index.js",
   "scripts": {
     "test": "eslint . && mocha"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/brianjgeiger/markdown-it-video"
+    "url": "https://github.com/johnetordoff/markdown-it-mfr"
   },
-  "author": "brianjgeiger",
+  "author": "johnetordoff",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/brianjgeiger/markdown-it-video/issues"
+    "url": "https://github.com/johnetordoff/markdown-it-mfr/issues"
   },
-  "homepage": "https://github.com/brianjgeiger/markdown-it-video",
+  "homepage": "https://github.com/johnetordoff/markdown-it-mfr",
   "keywords": [
     "markdown-it",
     "markdown-it-plugin"
