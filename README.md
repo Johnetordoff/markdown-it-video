@@ -1,11 +1,7 @@
-
-
 # markdown-it-mfr
 # Work in progess
 
 > markdown-it plugin for embedding MFR files.
-
-[![Build Status](https://travis-ci.org/johnetordoff/markdown-it-mfr.svg?branch=master)](https://travis-ci.org/johnetordoff/markdown-it-mfr)
 
 ## Usage
 
@@ -49,11 +45,4 @@ Alternately, you could use the url.
 
 ```md
 @[osf](https://mfr.osf.io/render?url=https://osf.io/kuvg9/?action=download)
-```
-
-
-## Options
-
-```js
-
 ```

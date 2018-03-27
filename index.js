@@ -74,8 +74,8 @@ function videoEmbed(md, options) {
 function tokenizeVideo(md, options) {
   function tokenizeReturn(tokens, idx) {
     const videoID = md.utils.escapeHtml(tokens[idx].videoID);
-
     var num = Math.random() * 0x10000;
+
     return '<div id="' + num + '" class="mfr mfr-file"></div><script>$(document).ready(function () {new mfr.Render("' + num + '", "' + options.formatUrl(videoID) + '");    }); </script>';
   }
   return tokenizeReturn;
