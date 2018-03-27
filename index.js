@@ -1,10 +1,5 @@
 // Process @[osf](guid)
 
-const mfrRegex = /^http(?:s?):\/\/(?:www\.)?mfr\.osf\.io\/render\?url=http(?:s?):\/\/osf\.io\/([a-zA-Z0-9]{1,5})\/\?action=download/;
-function mfrParser(url) {
-  const match = url.match(mfrRegex);
-  return match ? match[1] : url;
-}
 
 
 const EMBED_REGEX = /@\[([a-zA-Z].+)]\([\s]*(.*?)[\s]*[)]/im;
@@ -32,9 +27,10 @@ function videoEmbed(md, options) {
     const service = match[1];
     videoID = match[2];
     const serviceLower = service.toLowerCase();
-
-    if (serviceLower === 'osf') {
-      videoID = mfrParser(videoID);
+    if (serviceLower === options.serviceName) {
+      const mfrRegex = options.mfrRegex;
+      const match = videoID.match(mfrRegex);
+      videoID = match ? match[1] : videoID;
     } else if (!options[serviceLower]) {
       return false;
     }
@@ -72,73 +68,34 @@ function videoEmbed(md, options) {
   return videoReturn;
 }
 
-function videoUrl(service, videoID, options) {
-  switch (service) {
-    case 'youtube':
-      return 'https://www.youtube.com/embed/' + videoID;
-    case 'vimeo':
-      return 'https://player.vimeo.com/video/' + videoID;
-    case 'vine':
-      return 'https://vine.co/v/' + videoID + '/embed/' + options.vine.embed;
-    case 'prezi':
-      return 'https://prezi.com/embed/' + videoID +
-        '/?bgcolor=ffffff&amp;lock_to_path=0&amp;autoplay=0&amp;autohide_ctrls=0&amp;' +
-        'landing_data=bHVZZmNaNDBIWnNjdEVENDRhZDFNZGNIUE43MHdLNWpsdFJLb2ZHanI5N1lQVHkxSHFxazZ0UUNCRHloSXZROHh3PT0&amp;' +
-        'landing_sign=1kD6c0N6aYpMUS0wxnQjxzSqZlEB8qNFdxtdjYhwSuI';
-    case 'osf':
-      return 'https://mfr.osf.io/render?url=https://osf.io/' + videoID + '/?action=download';
-    default:
-      return service;
-  }
-}
-
 function tokenizeVideo(md, options) {
+  console.log(options);
+
   function tokenizeReturn(tokens, idx) {
     const videoID = md.utils.escapeHtml(tokens[idx].videoID);
     const service = md.utils.escapeHtml(tokens[idx].service).toLowerCase();
     var checkUrl = /http(?:s?):\/\/(?:www\.)?[a-zA-Z0-9-:.]{1,}\/render(?:\/)?[a-zA-Z0-9.&;?=:%]{1,}url=http(?:s?):\/\/[a-zA-Z0-9 -:.]{1,}\/[a-zA-Z0-9]{1,5}\/\?[a-zA-Z0-9.=:%]{1,}/;
     var num;
 
-    if (service === 'osf' && videoID) {
-      num = Math.random() * 0x10000;
+    num = Math.random() * 0x10000;
 
-      if (videoID.match(checkUrl)) {
-        return '<div id="' + num + '" class="mfr mfr-file"></div><script>' +
-          '$(document).ready(function () {new mfr.Render("' + num + '", "' + videoID + '");' +
-          '    }); </script>';
-      }
-      return '<div id="' + num + '" class="mfr mfr-file"></div><script>' +
-        '$(document).ready(function () {new mfr.Render("' + num + '", "https://mfr.osf.io/' +
-        'render?url=https://osf.io/' + videoID + '/?action=download%26mode=render");' +
-        '    }); </script>';
-    }
-
-    return videoID === '' ? '' :
-      '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item ' +
-      service + '-player" type="text/html" width="' + (options[service].width) +
-      '" height="' + (options[service].height) +
-      '" src="' + options.url(service, videoID, options) +
-      '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>';
+    return options.formatUrl(num, videoID);
   }
   return tokenizeReturn;
 }
 
-const defaults = {
-  url: videoUrl,
-  osf: { width: '100%', height: '100%' },
-};
 
 module.exports = function videoPlugin(md, options) {
   var theOptions = options;
   var theMd = md;
   if (theOptions) {
-    Object.keys(defaults).forEach(function checkForKeys(key) {
+    Object.keys(options).forEach(function checkForKeys(key) {
       if (typeof theOptions[key] === 'undefined') {
-        theOptions[key] = defaults[key];
+        theOptions[key] = options[key];
       }
     });
   } else {
-    theOptions = defaults;
+    theOptions = options;
   }
   theMd.renderer.rules.video = tokenizeVideo(theMd, theOptions);
   theMd.inline.ruler.before('emphasis', 'video', videoEmbed(theMd, theOptions));

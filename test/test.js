@@ -7,6 +7,13 @@ function getMfrId(html) {
   return html.split('"')[1];
 }
 
+function formatUrl(num, videoID) {
+  return '<div id="' + num + '" class="mfr mfr-file"></div><script>' +
+    '$(document).ready(function () {new mfr.Render("' + num + '", "https://mfr.osf.io/' +
+    'render?url=https://osf.io/' + videoID + '/?action=download%26mode=render");' +
+    '    }); </script>';
+}
+
 // Because the mfr iframe requires a random id these tests cannont be part of
 // the markdown-it-testgen fixture
 describe('markdown-it-mfr', function () {
@@ -14,7 +21,11 @@ describe('markdown-it-mfr', function () {
     html: true,
     linkify: true,
     typography: true,
-  }).use(require('../'));
+  }).use(require('../'), {
+    mfrRegex: /^http(?:s?):\/\/(?:www\.)?mfr\.osf\.io\/render\?url=http(?:s?):\/\/osf\.io\/([a-zA-Z0-9]{1,5})\/\?action=download/,
+    serviceName: 'osf',
+    formatUrl: formatUrl,
+  });
   var renderedHtml;
   var id;
 
