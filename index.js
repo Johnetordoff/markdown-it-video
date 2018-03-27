@@ -27,7 +27,7 @@ function videoEmbed(md, options) {
     const service = match[1];
     videoID = match[2];
     const serviceLower = service.toLowerCase();
-    if (serviceLower === options.serviceName) {
+    if (serviceLower === 'osf' && videoID) {
       const mfrRegex = options.mfrRegex;
       const match = videoID.match(mfrRegex);
       videoID = match ? match[1] : videoID;
@@ -69,17 +69,12 @@ function videoEmbed(md, options) {
 }
 
 function tokenizeVideo(md, options) {
-  console.log(options);
-
   function tokenizeReturn(tokens, idx) {
     const videoID = md.utils.escapeHtml(tokens[idx].videoID);
-    const service = md.utils.escapeHtml(tokens[idx].service).toLowerCase();
-    var checkUrl = /http(?:s?):\/\/(?:www\.)?[a-zA-Z0-9-:.]{1,}\/render(?:\/)?[a-zA-Z0-9.&;?=:%]{1,}url=http(?:s?):\/\/[a-zA-Z0-9 -:.]{1,}\/[a-zA-Z0-9]{1,5}\/\?[a-zA-Z0-9.=:%]{1,}/;
-    var num;
+    var num = Math.random() * 0x10000;
 
-    num = Math.random() * 0x10000;
+    return '<div id="' + num + '" class="mfr mfr-file"></div><script>$(document).ready(function () {new mfr.Render("' + num + '", "' + options.formatUrl(videoID) + '");    }); </script>';
 
-    return options.formatUrl(num, videoID);
   }
   return tokenizeReturn;
 }
